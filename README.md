@@ -4,14 +4,14 @@ compatible with Ranger's Vim plugin.
 
 ## Installing
 ```
-go get github.com/j18e/goranger
+go install github.com/j18e/goranger@latest
 ```
 
 ## Using with vim
 Use the ranger plugin at `github.com/francoiscabrol/ranger.vim` and in your
 `.vimrc` place the following line:
 ```
-let g:ranger_command_override = "/path/to/goranger"
+let g:ranger_command_override = "$GOPATH/bin/goranger"
 ```
 
 ## Flags, behavior
