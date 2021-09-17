@@ -94,6 +94,12 @@ func (r *Ranger) pathToSelection() string {
 }
 
 func (r *Ranger) LoadPath(path, selectFile string) error {
+	var err error
+	path, err = filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+	logger.Debugf("load %s, select '%s'", path, selectFile)
 	f, err := os.Stat(path)
 	if err != nil {
 		return err
