@@ -52,7 +52,11 @@ func run() error {
 	}
 	defer ui.Close()
 
-	ranger, err := NewRanger(os.Getenv("PWD"), opts.SelectFile, opts.ChooseFiles)
+	path := opts.SelectFile
+	if path == "" {
+		path = os.Getenv("PWD")
+	}
+	ranger, err := NewRanger(path, opts.ChooseFiles)
 	if err != nil {
 		return err
 	}

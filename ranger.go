@@ -50,7 +50,7 @@ func newParagraph() *widgets.Paragraph {
 	return p
 }
 
-func NewRanger(path, selectFile, chooseFiles string) (*Ranger, error) {
+func NewRanger(path, chooseFiles string) (*Ranger, error) {
 	termX, termY := ui.TerminalDimensions()
 
 	mainPane := newList()
@@ -75,7 +75,7 @@ func NewRanger(path, selectFile, chooseFiles string) (*Ranger, error) {
 		events:      ui.PollEvents(),
 	}
 
-	if err := r.LoadPath(path, selectFile); err != nil {
+	if err := r.LoadPath(path, ""); err != nil {
 		return nil, err
 	}
 	return r, nil
@@ -99,6 +99,9 @@ func (r *Ranger) LoadPath(path, selectFile string) error {
 		return err
 	}
 	if !f.IsDir() {
+		if selectFile == "" {
+			selectFile = filepath.Base(path)
+		}
 		path = filepath.Dir(path)
 	}
 	r.path = path
