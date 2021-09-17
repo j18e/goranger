@@ -187,6 +187,9 @@ func (r *Ranger) HandleEvent(e ui.Event) error {
 		return ErrExit
 	case "l", "<Right>":
 		if err := r.LevelDown(); err != nil {
+			if errors.Is(err, ErrExit) {
+				return err
+			}
 			logger.Error(err)
 		}
 	case "h", "<Left>":
