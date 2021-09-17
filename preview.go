@@ -12,7 +12,10 @@ const (
 )
 
 func (r *Ranger) updatePreview() error {
-	previewFile := filepath.Join(r.path, r.baseName())
+	previewFile := r.path
+	if len(r.mainDir) > 0 {
+		previewFile = filepath.Join(previewFile, r.baseName())
+	}
 
 	f, err := os.Stat(previewFile)
 	if err != nil {

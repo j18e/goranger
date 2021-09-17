@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -33,6 +32,8 @@ type Ranger struct {
 	events      <-chan ui.Event
 	prevKey     string
 	chooseFiles string // file to write chosen file names to, if specified
+
+	showHidden bool
 }
 
 func newList() *widgets.List {
@@ -82,10 +83,17 @@ func NewRanger(path, chooseFiles string) (*Ranger, error) {
 }
 
 func (r *Ranger) baseName() string {
-	return r.currentFile().Name()
+	f := r.currentFile()
+	if f == nil {
+		return ""
+	}
+	return f.Name()
 }
 
 func (r *Ranger) currentFile() fs.FileInfo {
+	if len(r.mainDir) == 0 {
+		return nil
+	}
 	return r.mainDir[r.mainPane.SelectedRow]
 }
 
@@ -112,21 +120,9 @@ func (r *Ranger) LoadPath(path, selectFile string) error {
 	}
 	r.path = path
 
-	mainDir, err := ioutil.ReadDir(path)
-	if err != nil {
+	if err := r.ReloadDirs(); err != nil {
 		return err
 	}
-	r.mainPane.Rows = colorFiles(mainDir)
-	r.mainPane.SelectedRow = fileIdx(selectFile, mainDir)
-	r.mainDir = mainDir
-
-	parentDir, err := ioutil.ReadDir(filepath.Dir(path))
-	if err != nil {
-		return err
-	}
-	r.parentPane.Rows = colorFiles(parentDir)
-	r.parentPane.SelectedRow = fileIdx(path, parentDir)
-	r.parentDir = parentDir
 
 	if err := r.updatePreview(); err != nil {
 		return err
@@ -135,19 +131,6 @@ func (r *Ranger) LoadPath(path, selectFile string) error {
 
 	r.render()
 	return nil
-}
-
-func fileIdx(name string, dir []fs.FileInfo) int {
-	name = filepath.Base(name)
-	if name == "" {
-		return 0
-	}
-	for i, f := range dir {
-		if f.Name() == name {
-			return i
-		}
-	}
-	return 0
 }
 
 func (r *Ranger) RunLoop() error {
@@ -172,60 +155,4 @@ func (r *Ranger) render() {
 	ui.Render(r.parentPane)
 	ui.Render(r.previewPane)
 	ui.Render(r.statusBar)
-}
-
-func (r *Ranger) HandleEvent(e ui.Event) error {
-	switch e.ID {
-	case ":":
-		cmd := r.EnterCommand(":")
-		switch cmd {
-		case TmuxUp, TmuxDown, TmuxLeft, TmuxRight:
-			if err := TmuxNavigate(cmd); err != nil {
-				logger.Errorf("tmux navigate: %s", err)
-			}
-		default:
-			break
-		}
-		logger.Debugf("got user command: %s", cmd)
-
-	case "/":
-		// TODO handle search
-
-	case "q", "<C-c>":
-		return ErrExit
-	case "l", "<Right>":
-		if err := r.LevelDown(); err != nil {
-			if errors.Is(err, ErrExit) {
-				return err
-			}
-			logger.Error(err)
-		}
-	case "h", "<Left>":
-		r.LevelUp()
-	case "j", "<Down>":
-		r.Scroll(1)
-	case "k", "<Up>":
-		r.Scroll(-1)
-	case "J":
-		r.Scroll(10)
-	case "K":
-		r.Scroll(-10)
-	case "g":
-		if r.prevKey == "g" {
-			r.ScrollTop()
-		}
-	case "G", "<End>":
-		r.ScrollBottom()
-	}
-	if err := r.updatePreview(); err != nil {
-		logger.Error(err)
-	}
-	r.DisplayFile()
-
-	if r.prevKey == "g" {
-		r.prevKey = ""
-	} else {
-		r.prevKey = e.ID
-	}
-	return nil
 }

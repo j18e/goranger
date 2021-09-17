@@ -38,7 +38,16 @@ func (r *Ranger) EnterCommand(pfx string) string {
 	}
 }
 
+func (r *Ranger) DisplayError(format string, a ...interface{}) {
+	r.statusBar.Text = colorText(fmt.Sprintf(format, a...), colorRed)
+	ui.Render(r.statusBar)
+}
+
 func (r *Ranger) DisplayFile() {
+	if len(r.mainDir) == 0 {
+		r.statusBar.Text = ""
+		return
+	}
 	cnt := 1
 	info := r.currentFile()
 	if info.IsDir() {
