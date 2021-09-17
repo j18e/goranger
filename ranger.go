@@ -171,14 +171,16 @@ func (r *Ranger) render() {
 func (r *Ranger) HandleEvent(e ui.Event) error {
 	switch e.ID {
 	case ":":
-		// TODO handle commands
-		// cmd := r.Bar.HandleCommand(r.events)
-		// switch cmd {
-		// case "TmuxNavigateRight":
-		// default:
-		// 	break
-		// }
-		// logger.Debugf("got user command: %s", cmd)
+		cmd := r.EnterCommand(":")
+		switch cmd {
+		case TmuxUp, TmuxDown, TmuxLeft, TmuxRight:
+			if err := TmuxNavigate(cmd); err != nil {
+				logger.Errorf("tmux navigate: %s", err)
+			}
+		default:
+			break
+		}
+		logger.Debugf("got user command: %s", cmd)
 
 	case "/":
 		// TODO handle search
