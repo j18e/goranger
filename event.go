@@ -9,7 +9,7 @@ import (
 func (r *Ranger) HandleEvent(e ui.Event) error {
 	switch e.ID {
 	case ":":
-		return r.HandleCommand(r.EnterCommand(":"))
+		return r.HandleCommand()
 	case "/":
 		// TODO handle search
 

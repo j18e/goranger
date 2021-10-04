@@ -16,28 +16,6 @@ func newStatus(width int) *widgets.Paragraph {
 	return st
 }
 
-func (r *Ranger) EnterCommand(pfx string) string {
-	r.statusBar.Text = pfx
-	ui.Render(r.statusBar)
-	var res string
-	for {
-		e := <-r.events
-		if e.Type != ui.KeyboardEvent {
-			continue
-		}
-		switch e.ID {
-		case "<Escape>", "<C-c>":
-			return ""
-		case "<Enter>":
-			return res
-		default:
-			res += e.ID
-			r.statusBar.Text += e.ID
-			ui.Render(r.statusBar)
-		}
-	}
-}
-
 func (r *Ranger) DisplayError(format string, a ...interface{}) {
 	r.statusBar.Text = colorText(fmt.Sprintf(format, a...), colorRed)
 	ui.Render(r.statusBar)
