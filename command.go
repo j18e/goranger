@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	ui "github.com/gizak/termui/v3"
@@ -12,6 +14,7 @@ import (
 type Command string
 
 const (
+	Touch Command = "touch"
 	Mkdir Command = "mkdir"
 
 	TmuxUp    Command = "TmuxNavigateUp"
@@ -27,12 +30,19 @@ func (r *Ranger) HandleCommand() error {
 		r.UpdateStatus()
 	case TmuxUp, TmuxDown, TmuxLeft, TmuxRight:
 		return TmuxNavigate(cmd)
-	case Mkdir:
+	case Mkdir, Touch:
 		if len(args) != 1 {
-			return fmt.Errorf("mkdir: expected 1 arg, got %d", len(args))
+			return fmt.Errorf("%s: expected 1 arg, got %d", cmd, len(args))
 		}
-		if err := os.Mkdir(args[0], 0755); err != nil {
-			return err
+		path := filepath.Join(r.path, args[0])
+		if cmd == Mkdir {
+			if err := os.Mkdir(path, 0755); err != nil {
+				return err
+			}
+		} else {
+			if err := ioutil.WriteFile(path, nil, 0644); err != nil {
+				return err
+			}
 		}
 		return r.ReloadDirs("")
 	default:
@@ -44,7 +54,7 @@ func (r *Ranger) HandleCommand() error {
 func (r *Ranger) EnterCommand(pfx string) (Command, []string) {
 	r.statusBar.Text = pfx
 	ui.Render(r.statusBar)
-	res := pfx
+	var res string
 	for {
 		e := <-r.events
 		if e.Type != ui.KeyboardEvent {
@@ -54,7 +64,7 @@ func (r *Ranger) EnterCommand(pfx string) (Command, []string) {
 		case "<Escape>", "<C-c>":
 			return "", nil
 		case "<Enter>":
-			res = strings.TrimSpace(strings.TrimLeft(res, pfx))
+			res = strings.TrimSpace(res)
 			split := strings.Split(res, " ")
 			if len(split) > 1 {
 				return Command(split[0]), split[1:]
@@ -62,15 +72,15 @@ func (r *Ranger) EnterCommand(pfx string) (Command, []string) {
 			return Command(split[0]), nil
 		case "<Space>":
 			res += " "
-			r.statusBar.Text = res
+			r.statusBar.Text = pfx + res
 			ui.Render(r.statusBar)
 		case "<Backspace>":
 			res = res[:len(res)-2]
-			r.statusBar.Text = res
+			r.statusBar.Text = pfx + res
 			ui.Render(r.statusBar)
 		default:
 			res += e.ID
-			r.statusBar.Text = res
+			r.statusBar.Text = pfx + res
 			ui.Render(r.statusBar)
 		}
 	}
