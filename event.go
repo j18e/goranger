@@ -44,12 +44,12 @@ func (r *Ranger) HandleEvent(e ui.Event) error {
 		} else {
 			r.showHidden = true
 		}
-		r.ReloadDirs()
+		r.ReloadDirs("")
 	}
 	if err := r.updatePreview(); err != nil {
 		logger.Error(err)
 	}
-	r.DisplayFile()
+	r.UpdateStatus()
 
 	if r.prevKey == "g" {
 		r.prevKey = ""

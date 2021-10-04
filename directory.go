@@ -9,8 +9,11 @@ import (
 	"github.com/gizak/termui/v3/widgets"
 )
 
-func (r *Ranger) ReloadDirs() error {
-	mainDir, err := r.RenderDir(r.mainPane, r.path, r.baseName())
+func (r *Ranger) ReloadDirs(selectFile string) error {
+	if selectFile == "" {
+		selectFile = r.baseName()
+	}
+	mainDir, err := r.RenderDir(r.mainPane, r.path, selectFile)
 	if err != nil {
 		return err
 	}

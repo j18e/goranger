@@ -43,7 +43,7 @@ func (r *Ranger) DisplayError(format string, a ...interface{}) {
 	ui.Render(r.statusBar)
 }
 
-func (r *Ranger) DisplayFile() {
+func (r *Ranger) UpdateStatus() {
 	if len(r.mainDir) == 0 {
 		r.statusBar.Text = ""
 		return

@@ -120,14 +120,14 @@ func (r *Ranger) LoadPath(path, selectFile string) error {
 	}
 	r.path = path
 
-	if err := r.ReloadDirs(); err != nil {
+	if err := r.ReloadDirs(selectFile); err != nil {
 		return err
 	}
 
 	if err := r.updatePreview(); err != nil {
 		return err
 	}
-	r.DisplayFile()
+	r.UpdateStatus()
 
 	r.render()
 	return nil
