@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	ui "github.com/gizak/termui/v3"
@@ -73,4 +74,19 @@ func (r *Ranger) EnterCommand(pfx string) (Command, []string) {
 			ui.Render(r.statusBar)
 		}
 	}
+}
+
+func TmuxNavigate(cmd Command) error {
+	var arg string
+	switch cmd {
+	case TmuxUp:
+		arg = "-U"
+	case TmuxDown:
+		arg = "-D"
+	case TmuxLeft:
+		arg = "-L"
+	case TmuxRight:
+		arg = "-R"
+	}
+	return exec.Command("tmux", "select-pane", arg, "-t", os.Getenv("TMUX_PANE")).Start()
 }
