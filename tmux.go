@@ -5,14 +5,7 @@ import (
 	"os/exec"
 )
 
-const (
-	TmuxUp    = "TmuxNavigateUp"
-	TmuxDown  = "TmuxNavigateDown"
-	TmuxRight = "TmuxNavigateRight"
-	TmuxLeft  = "TmuxNavigateLeft"
-)
-
-func TmuxNavigate(cmd string) error {
+func TmuxNavigate(cmd Command) error {
 	var arg string
 	switch cmd {
 	case TmuxUp:

@@ -144,7 +144,7 @@ func (r *Ranger) RunLoop() error {
 			if err == ErrExit {
 				return nil
 			}
-			return err
+			r.DisplayError("%s", err)
 		}
 		r.render()
 	}
