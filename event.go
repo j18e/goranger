@@ -9,7 +9,7 @@ import (
 func (r *Ranger) HandleEvent(e ui.Event) error {
 	switch e.ID {
 	case ":":
-		return r.HandleCommand()
+		return r.HandleCommand("")
 	case "/":
 		// TODO handle search
 
@@ -45,6 +45,8 @@ func (r *Ranger) HandleEvent(e ui.Event) error {
 			r.showHidden = true
 		}
 		r.ReloadDirs("")
+	case "d":
+		return r.HandleCommand("delete")
 	}
 	if err := r.updatePreview(); err != nil {
 		logger.Error(err)

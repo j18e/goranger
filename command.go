@@ -24,8 +24,8 @@ const (
 	TmuxLeft  Command = "TmuxNavigateLeft"
 )
 
-func (r *Ranger) HandleCommand() error {
-	cmd, args := r.EnterCommand(":")
+func (r *Ranger) HandleCommand(text string) error {
+	cmd, args := r.EnterCommand(":", text)
 	switch cmd {
 	case "":
 		r.UpdateStatus()
@@ -59,10 +59,9 @@ func (r *Ranger) HandleCommand() error {
 	return nil
 }
 
-func (r *Ranger) EnterCommand(pfx string) (Command, []string) {
-	r.statusBar.Text = pfx
+func (r *Ranger) EnterCommand(pfx string, res string) (Command, []string) {
+	r.statusBar.Text = pfx + res
 	ui.Render(r.statusBar)
-	var res string
 	for {
 		e := <-r.events
 		if e.Type != ui.KeyboardEvent {
