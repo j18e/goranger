@@ -14,8 +14,9 @@ import (
 type Command string
 
 const (
-	Touch Command = "touch"
-	Mkdir Command = "mkdir"
+	Touch  Command = "touch"
+	Mkdir  Command = "mkdir"
+	Delete Command = "delete"
 
 	TmuxUp    Command = "TmuxNavigateUp"
 	TmuxDown  Command = "TmuxNavigateDown"
@@ -45,6 +46,13 @@ func (r *Ranger) HandleCommand() error {
 			}
 		}
 		return r.ReloadDirs("")
+	case Delete:
+		deletePath := r.pathToSelection()
+		if err := os.Remove(deletePath); err != nil {
+			return err
+		}
+		r.Scroll(1)
+		return r.ReloadDirs(r.baseName())
 	default:
 		return fmt.Errorf("command not recognized: %s", cmd)
 	}
