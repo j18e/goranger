@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	ui "github.com/gizak/termui/v3"
@@ -23,6 +24,8 @@ const (
 	TmuxRight Command = "TmuxNavigateRight"
 	TmuxLeft  Command = "TmuxNavigateLeft"
 )
+
+var reMetaKeystroke = regexp.MustCompile(`^<.+>$`)
 
 func (r *Ranger) HandleCommand(text string) error {
 	cmd, args := r.EnterCommand(":", text)
@@ -82,10 +85,14 @@ func (r *Ranger) EnterCommand(pfx string, res string) (Command, []string) {
 			r.statusBar.Text = pfx + res
 			ui.Render(r.statusBar)
 		case "<Backspace>":
-			res = res[:len(res)-2]
+			res = res[:len(res)-1]
 			r.statusBar.Text = pfx + res
 			ui.Render(r.statusBar)
 		default:
+			// don't listen to other <...> events (eg <C-o>)
+			if len(e.ID) > 1 {
+				continue
+			}
 			res += e.ID
 			r.statusBar.Text = pfx + res
 			ui.Render(r.statusBar)
