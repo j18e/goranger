@@ -53,3 +53,7 @@ func (r *Ranger) ScrollTop() {
 func (r *Ranger) ScrollBottom() {
 	r.mainPane.ScrollBottom()
 }
+
+func (r *Ranger) SelectedLast() bool {
+	return r.mainPane.SelectedRow+1 == len(r.mainPane.Rows)
+}

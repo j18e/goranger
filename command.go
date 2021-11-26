@@ -54,7 +54,11 @@ func (r *Ranger) HandleCommand(text string) error {
 		if err := os.Remove(deletePath); err != nil {
 			return err
 		}
-		r.Scroll(1)
+		if r.SelectedLast() {
+			r.Scroll(-1)
+		} else {
+			r.Scroll(1)
+		}
 		return r.ReloadDirs(r.baseName())
 	default:
 		return fmt.Errorf("command not recognized: %s", cmd)
