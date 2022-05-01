@@ -1,3 +1,5 @@
+Archival notice: this repo has been archived due to the existence of gokcehan/lf
+
 # Goranger
 A dropin replacement for the popular Python based Ranger utility. It should be
 compatible with Ranger's Vim plugin.
